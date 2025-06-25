@@ -1,0 +1,5 @@
+node_modules
+*.swp
+*.js
+DS_Info
+dist

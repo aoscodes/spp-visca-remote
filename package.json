@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "visca-over-ip": "^1.0.16"
+  },
+  "scripts": {
+    "start": "npx tsc; node index.js"
+  }
+}
