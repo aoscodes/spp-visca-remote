@@ -1,8 +1,7 @@
 import { ViscaCamera, ViscaCommand } from 'visca-over-ip'
 
 var camera = new ViscaCamera('192.168.1.100', 1259);
-
-var command = ViscaCommand.cameraPanTiltHome()
+var command = ViscaCommand.cameraPresetRecall(1)
 
 command.on('ack', (data) => {
   console.log('Command acknowledged:', data)
@@ -18,8 +17,6 @@ command.on('complete', (data) => {
 
 camera.on('connected', () => {
   console.log('Camera connected')
-  console.log("connected? ", camera.connected)
-
   camera.sendCommand(command)
 })
 
