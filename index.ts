@@ -7,10 +7,10 @@ dotenv.config()
 const app = express()
 let camera: ViscaCamera
 
-const router = Router()
-
-router.get('/:pose', async (req, res) => {
+let camera_connected = false;
+app.get('/:pose', async (req, res) => {
   const pose = Number.parseInt(req.params.pose)
+  console.log("requesting pose ", pose)
   if (!pose) res.send(404)
 
   const command = ViscaCommand.cameraPresetRecall(pose)
@@ -20,10 +20,41 @@ router.get('/:pose', async (req, res) => {
   res.send(result)
 })
 
+app.get('/save/:position', async (req, res) => {
+  const pose = Number.parseInt(req.params.position)
+  if (!pose) res.send(404)
+
+  const command = ViscaCommand.cameraPresetSet(pose)
+
+  const result = await cameraCommand(camera, command)
+
+  res.send(result)
+})
+
+app.get('/home', async (req, res) => {
+  const command = ViscaCommand.cameraPanTiltHome()
+  const result = await cameraCommand(camera, command)
+  res.send(result)
+})
+
+app.get('/', (req, res) => {
+  res.send("hello world")
+})
+
 app.listen(8888, () => {
-  camera = new ViscaCamera('192.168.1.100', 1259);
+  console.log("server online")
+
+  camera = new ViscaCamera('192.168.8.100', 1259);
   camera.on('connected', () => {
     console.log('Camera connected')
+    camera_connected = true
+    //const command = ViscaCommand.cameraZoomDirect(3000)
+    //const command = ViscaCommand.cameraPanTilt(7, 7,)
+    //camera.sendCommand(command)
+    //setTimeout(() => {
+    //  const zoom = ViscaCommand.cameraZoomStop()
+    //  camera.sendCommand(zoom)
+    //}, 2000)
   })
 
   camera.on('error', (err) => {
@@ -36,6 +67,9 @@ app.listen(8888, () => {
 })
 
 const cameraCommand = async (camera: ViscaCamera, command: ViscaCommand) => {
+  if (!camera_connected) {
+    return { type: "error", data: { message: "camera not connected" } }
+  }
   command.on('ack', (data) => {
     console.log('Command acknowledged:', data)
     return { type: "ack", data: data }
